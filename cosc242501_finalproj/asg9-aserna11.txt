@@ -1,0 +1,2194 @@
+package finalproj;
+
+public class Alien extends SpaceEntity {
+    
+    // Instance variables to store health and strength of the alien
+    private int health;
+    private int strength;
+    
+    // Constructor to initialize the Alien object with name, description, health, species, and strength
+    public Alien(String name, String description, int health, String species, int strength) {
+        super(name, description); // Call the parent class constructor to set name and description
+        this.setHealth(health);   // Set the health of the alien
+        this.setStrength(strength); // Set the strength of the alien
+    }
+
+    // Getter for health
+    public int getHealth() {
+        return health;  // Returns the current health of the alien
+    }
+
+    // Setter for health
+    public void setHealth(int health) {
+        this.health = health;  // Sets the health of the alien
+    }
+
+    // Getter for strength
+    public int getStrength() {
+        return strength;  // Returns the current strength of the alien
+    }
+
+    // Setter for strength
+    public void setStrength(int strength) {
+        this.strength = strength;  // Sets the strength of the alien
+    }
+    
+}
+
+----------------
+
+package finalproj;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class Capitan extends CrewMember implements CrewMemberAction {
+	Random dice = new Random();
+	
+	public Capitan(String name, int strength, int intellegence, int agility, int skill, int health) {
+		super(name, strength, intellegence, agility, skill, health);
+	}
+
+	@Override
+	public void action(List<CrewMember> crew, Starship ship, List<Planet> solarSystem, int locationIndex) {
+		// the capitan can boost everyone's morale and up their helth by a little bit
+		
+		System.out.println(this.getName() + ": \"Let us see 'ere if we gots ourselves any tray-sure...\"");
+		
+		if((dice.nextInt(10) + 1) == 10) {
+			// Adds a random resource from the current planet's resource list to the ship's cargo.
+			// - solarSystem.get(locationIndex): Retrieves the planet at the current location in the solar system.
+			// - .getResources(): Accesses the list of resources available on the planet.
+			// - dice.nextInt(...): Generates a random index based on the size of the planet's resource list.
+			// - .get(...): Retrieves the resource at the randomly generated index.
+			// - ship.getCargo().add(...): Adds the selected resource to the ship's cargo storage.			
+			System.out.println(this.getName() + ": \"WE FOUND SOMETHIN' LADS!\"");
+			
+			ship.getCargo().add(solarSystem.get(locationIndex).getResources().get(dice.nextInt(solarSystem.get(locationIndex).getResources().size())));
+			ship.getCargo().add(solarSystem.get(locationIndex).getResources().get(dice.nextInt(solarSystem.get(locationIndex).getResources().size())));
+			ship.getCargo().add(solarSystem.get(locationIndex).getResources().get(dice.nextInt(solarSystem.get(locationIndex).getResources().size())));
+			
+			System.out.println(ship); //display the cargo
+
+			
+		} else {
+			System.out.println(this.getName() + ": \"ARRRRGH THERE BE NOTHIN 'ERE BUT JACK SQUAT!\"");
+		}
+	}
+	
+	@Override
+	public void fight(List<CrewMember> crew, Alien alien) {
+		
+		System.out.println(this.getName() + ": \"I'm not much of a fighter but blast-it I'm going down with my ship!\"");
+		
+		//alien = new Alien("Demigorgan", "A sleek, metallic-skinned being with elongated limbs and glowing, crystalline eyes that shift color with their emotions. Their heads are adorned with bioluminescent tendrils that pulse faintly like a living neural network.", 50, "Xaldorian", 15);
+		// do we create a new alien or somehow find a way to pass in 
+		// the alien that killed SecurityOfficer into this method...
+		
+		while((alien.getHealth() > 0) && (this.getHealth() > 0)) {
+			//fight logic here
+				
+				//Capitan's turn
+				int attkPwr = this.getStrength() - (dice.nextInt(10) + 1);
+				alien.setHealth(alien.getHealth() - attkPwr);
+				System.out.println(this.getName() + " deals " + attkPwr + " damage to the " + alien.getName());
+				
+				if (alien.getHealth() <= 0) {
+	                System.out.println(alien.getName() + " is dead! phew...");
+	                break;
+	            }
+				
+				//Alien turn
+				this.setHealth(this.getHealth() - alien.getStrength());
+				System.out.println(this.getName() + " takes " + alien.getStrength() + " damage from " + alien.getName());
+				
+				if (this.getHealth() <= 0) {
+	                System.out.println("Oh no oh dear God, " + this.getName() + " has been killed...");
+	                System.out.println("The engineer jumps in to fight!");
+	                ((Engineer) crew.get(2)).fight(crew, alien);
+	                break;
+	            }
+				
+				pressKey();	
+		}
+	}
+
+	@Override
+	public void catchPhrase() {
+		// TODO Auto-generated method stub
+		System.out.println(this.getName() + ": \"99 bottles of rum on the wall, 98 bottles of-- wait...\"");
+	}
+	
+}
+
+--------------------
+
+package finalproj;
+
+import java.io.IOException;
+
+public class CrewMember {
+    // Attributes for the CrewMember class
+    private String name;           // The name of the crew member
+    private int strength;          // Strength stat, likely used for combat or physical tasks
+    private int intellegence;      // Intelligence stat, likely used for technical or strategic tasks
+    private int agility;           // Agility stat, likely used for speed, dexterity, or evasion
+    private int skill;             // Skill stat, could represent proficiency in specific areas
+    private int health;            // Health stat, representing the crew member's current health
+
+    // Constructor to initialize the CrewMember object with specific attributes
+    public CrewMember(String name, int strength, int intellegence, int agility, int skill, int health) {
+        this.setName(name);            // Set the crew member's name
+        this.setStrength(strength);    // Set the crew member's strength
+        this.setIntellegence(intellegence);  // Set the crew member's intelligence
+        this.setAgility(agility);      // Set the crew member's agility
+        this.setSkill(skill);          // Set the crew member's skill
+        this.setHealth(health);        // Set the crew member's health
+    }
+
+    // Getter and setter methods for each attribute
+    
+    public String getName() {
+        return name;  // Return the crew member's name
+    }
+    public void setName(String name) {
+        this.name = name;  // Set the crew member's name
+    }
+
+    public int getStrength() {
+        return strength;  // Return the crew member's strength
+    }
+    public void setStrength(int strength) {
+        this.strength = strength;  // Set the crew member's strength
+    }
+
+    public int getIntellegence() {
+        return intellegence;  // Return the crew member's intelligence
+    }
+    public void setIntellegence(int intellegence) {
+        this.intellegence = intellegence;  // Set the crew member's intelligence
+    }
+
+    public int getAgility() {
+        return agility;  // Return the crew member's agility
+    }
+    public void setAgility(int agility) {
+        this.agility = agility;  // Set the crew member's agility
+    }
+
+    public int getSkill() {
+        return skill;  // Return the crew member's skill
+    }
+    public void setSkill(int skill) {
+        this.skill = skill;  // Set the crew member's skill
+    }
+
+    public int getHealth() {
+        return health;  // Return the crew member's health
+    }
+    public void setHealth(int health) {
+        this.health = health;  // Set the crew member's health
+    }
+
+    // Method that pauses execution and waits for the user to press ENTER to continue
+    public static void pressKey() {
+        System.out.println("Press ENTER to continue...");
+        try {
+            System.in.read();  // Wait for the user to press ENTER
+        } catch (IOException e) {
+            e.printStackTrace();  // If an error occurs while reading input, print the error stack trace
+        }        
+    }
+
+    // Override the toString() method to provide a readable summary of the CrewMember's attributes
+    @Override
+    public String toString() {
+        return "Name: " + name + "   Health: " + health + "\n"  // Display name and health
+             + "Strength: " + strength + "   Intellegence: " + intellegence + "\n"  // Display strength and intelligence
+             + "Agility: " + agility + "   Skill: " + skill + "\n";  // Display agility and skill
+    }
+}
+
+---------------------
+
+package finalproj;
+
+import java.util.List;
+
+public interface CrewMemberAction {
+	//void action();
+	void fight(List<CrewMember> crew, Alien alien);
+	void catchPhrase();
+	//void action(ArrayList<CrewMember> crew);
+	void action(List<CrewMember> crew, Starship ship, List<Planet> solarSystem, int num);
+}
+
+---------------------
+
+package finalproj;
+
+import java.util.List;
+import java.util.Random;
+
+public class Engineer extends CrewMember implements CrewMemberAction {
+    
+    // Constructor to initialize the Engineer object with specific attributes
+    public Engineer(String name, int strength, int intellegence, int agility, int skill, int health) {
+        super(name, strength, intellegence, agility, skill, health);  // Call the parent constructor to initialize CrewMember attributes
+        // TODO Auto-generated constructor stub
+    }
+
+    // Action method where the engineer can repair the ship's hull
+    @Override
+    public void action(List<CrewMember> crew, Starship ship, List<Planet> solarSystem, int locationIndex) {
+        // The engineer can repair the ship's hull and improve its condition
+        System.out.println("The ship looks pretty damaged, let me see what i can do");
+        System.out.println("*" + this.getName() + " repairs the hull of your ship +10*");        
+        
+        // Increase the ship's hull integrity by 10 points
+        ship.setHullIntegrity(ship.getHullIntegrity() + 10);
+    }
+
+    // Method to handle fighting, where the engineer participates in combat
+    @Override
+    public void fight(List<CrewMember> crew, Alien alien) {
+        // The engineer expresses doubt about their fighting ability
+        System.out.println(this.getName() + ": \"I'm only an engineer, I don't know how to fight!\"");
+        
+        // Create a new Random object to simulate randomness in combat
+        Random dice = new Random();
+        
+        // Combat loop, where the engineer and alien take turns attacking each other
+        while ((alien.getHealth() > 0) && (this.getHealth() > 0)) {
+            // Engineer's turn to attack
+            int attkPwr = this.getStrength() - (dice.nextInt(10) + 1);  // Calculate the damage dealt by the engineer
+            alien.setHealth(alien.getHealth() - attkPwr);  // Reduce the alien's health by the damage dealt
+            System.out.println(this.getName() + " deals " + attkPwr + " damage to the " + alien.getName());
+            
+            // Check if the alien is dead after the engineer's attack
+            if (alien.getHealth() <= 0) {
+                System.out.println(alien.getName() + " is dead! phew...");
+                break;  // Exit the loop if the alien is defeated
+            }
+            
+            // Alien's turn to attack
+            this.setHealth(this.getHealth() - alien.getStrength());  // Reduce the engineer's health based on alien's strength
+            System.out.println(this.getName() + " takes " + alien.getStrength() + " damage from " + alien.getName());
+            
+            // Check if the engineer is dead after the alien's attack
+            if (this.getHealth() <= 0) {
+                System.out.println("Oh no oh dear God, " + this.getName() + " has been killed...");
+                System.out.println("The scientist jumps in to fight!");  // If the engineer dies, another crew member joins the fight
+                ((Scientist) crew.get(3)).fight(crew, alien);  // Let the scientist take over the fight
+                break;  // Exit the loop if the engineer dies
+            }
+            
+            // Wait for user input before continuing the fight
+            pressKey();
+        }        
+    }
+
+    // Catchphrase method to display the engineer's catchphrase
+    @Override
+    public void catchPhrase() {
+        // The engineer makes a humorous catchphrase
+        System.out.println(this.getName() + ": \"You think that's bad? At least it's not rocket science HAAAAAAAAA!\"");
+    }
+}
+
+--------------------------
+
+package finalproj;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+// subclass of SpaceEntity
+public class Planet extends SpaceEntity {
+    // List to hold the resources found on the planet
+    private List<Resource> resources = new ArrayList<>();
+
+    // Constructor for the Planet class
+    public Planet(String name, String description) {
+        // Call the constructor of the superclass (SpaceEntity) to initialize the planet's name and description
+        super(name, description);
+        
+        // Create a map of resource names and their descriptions
+        Map<String, String> objects = new HashMap<>();
+        
+        // Adding various resources with descriptions to the map
+        objects.put("Water", "A vast supply of drinkable water.");
+        objects.put("Iron Ore", "Rich deposits of iron ore.");
+        objects.put("Gold", "Precious gold reserves.");
+        objects.put("Energy Crystal", "A rare and potent energy source.");
+        objects.put("Alien Artifact", "An ancient artifact of unknown origin.");
+        objects.put("Flora", "Exotic plants with medicinal properties.");
+        objects.put("Fauna", "Wildlife adapted to the harsh environment.");
+        objects.put("Uranium", "High-grade uranium for energy production.");
+        objects.put("Plasma Core", "A powerful plasma energy core.");
+        objects.put("Frozen Gas", "A frozen gas ideal for fuel production.");
+        objects.put("Copper", "Rich veins of conductive copper.");
+        objects.put("Silicon", "Deposits of silicon for advanced electronics.");
+        objects.put("Dark Matter", "An enigmatic substance defying known physics.");
+        objects.put("Alien Relic", "A mystical relic imbued with alien technology.");
+        objects.put("Diamond", "Vast deposits of uncut diamonds.");
+        objects.put("Obsidian", "Jet-black volcanic glass.");
+        objects.put("Hydrogen", "Highly pure hydrogen gas.");
+        objects.put("Nitrogen", "Concentrated nitrogen for agriculture.");
+        objects.put("Sulfur", "A large quantity of sulfur for manufacturing.");
+        objects.put("Magnesium", "Lightweight magnesium deposits.");
+        objects.put("Zirconium", "A rare element with industrial applications.");
+        objects.put("Tritium", "A radioactive isotope used for power generation.");
+        objects.put("Antimatter", "A highly dangerous yet powerful substance.");
+        objects.put("Helium-3", "An isotope useful for fusion reactors.");
+        objects.put("Graphite", "High-quality graphite for materials.");
+        objects.put("Exotic Gas", "A gas with unusual chemical properties.");
+        objects.put("Rare Earth Metals", "Essential for high-tech manufacturing.");
+        objects.put("Quantum Particles", "Particles with strange quantum properties.");
+        objects.put("Neutronium", "A dense material formed under extreme conditions.");
+        objects.put("Crystal Shards", "Beautiful crystalline fragments.");
+        
+        // Populate the planet with random resources from the map
+        populatePlanet(objects);
+    }
+
+    // Getter method to retrieve the resources list
+    public List<Resource> getResources(){
+        return resources;
+    }
+
+    // Helper method to populate the planet with a set of random resources
+    private void populatePlanet(Map<String, String> objects) {
+        Random random = new Random(); // Random generator to select random resources
+        List<String> keys = new ArrayList<>(objects.keySet());  // Get a list of the keys (resource names) from the map
+        
+        // Loop to populate the planet with 10 random resources
+        for (int i = 0; i < 10; i++) {
+            // Select a random resource name from the map keys
+            String resourceName = keys.get(random.nextInt(keys.size()));
+            // Get the description of the selected resource from the map
+            String description = objects.get(resourceName);
+            // Add the resource to the planet's resource list
+            resources.add(new Resource(resourceName, description));
+        }
+    }
+
+    // Overriding toString() method to represent the planet as a string with its name and description
+    @Override
+    public String toString() {
+        return this.name + ": " + this.description;
+    }
+}
+
+------------------------
+
+package finalproj;
+
+import java.util.List;
+
+public class RandomEvent {
+    // Instance variables to hold event type and its description
+    private String eventType;
+    private String description;
+
+    // Constructor to initialize the event type and description
+    public RandomEvent(String eventType, String description) {
+        this.eventType = eventType;
+        this.description = description;
+    }
+
+    // Getter method for the event type
+    public String getEventType() {
+        return eventType;
+    }
+    
+    // Getter method for the event description
+    public String getDescription() {
+        return description;
+    }
+
+    // Method to trigger a random event and print its type and description
+    public void triggerEvent() {
+        System.out.println("Event Triggered: " + eventType);
+        System.out.println("Description: " + description);
+    }
+
+    // Method to trigger specific events affecting the ship and crew
+    public void triggerEvent(String eventType, Starship ship, List<CrewMember> crew) {
+        // Switch statement to handle different types of events
+        switch (eventType) {
+            case "Plague":
+                // If the event is a plague, set all crew members' health to 0
+                for (CrewMember member : crew) {
+                    member.setHealth(0);
+                }
+                System.out.println("A deadly plague has spread! All crew health is reduced to 0.");
+                break;
+
+            case "Hull Damage":
+                // If the event is hull damage, set the ship's hull integrity to 10%
+                ship.setHullIntegrity(10);
+                System.out.println("The ship suffered critical hull damage! Hull integrity is at 10%.");
+                break;
+
+            case "Resource Theft":
+                // If the event is resource theft, all resources are stolen (logic to be implemented)
+                System.out.println("Pirates have raided the ship! All resources have been stolen.");
+                break;
+
+            case "Solar Flare":
+                // If the event is a solar flare, reduce all crew members' health by 50%
+                for (CrewMember member : crew) {
+                    member.setHealth(50);  // Reduces health to 50 (assuming max health is 100)
+                }
+                System.out.println("A solar flare has struck! All crew health is reduced by 50%.");
+                break;
+
+            default:
+                // If no known event type is matched, print a default message
+                System.out.println("No event triggered.");
+                break;
+        }
+    }
+}
+
+---------------------
+
+package finalproj;
+
+public class Resource extends SpaceEntity { //deomnstrates inheritance by extending the class signiture to include the super class
+
+	public Resource(String name, String description) {
+		super(name, description); //deomnstrates inheritance by invoking the constructor of its superclass
+	}
+
+}
+
+----------------------
+
+package finalproj;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class Scientist extends CrewMember implements CrewMemberAction { //deomnstrates inheritance by extending the class signiture to include the super class
+											// use the crewMemberActionInterface to have a blueprint of method necessary for function
+	private int refuelCount = 3;
+	//demonstrates encapsulation and field scope
+	
+	public Scientist(String name, int strength, int intellegence, int agility, int skill, int health) {
+		super(name, strength, intellegence, agility, skill, health); //deomnstrates inheritance by invoking the constructor of its superclass
+	}
+	
+	public int getRefuelCount() {
+		return refuelCount;
+	}
+
+	@Override   // use the crewMemberActionInterface to have a blueprint of method necessary for function
+	public void action(List<CrewMember> crew, Starship ship, List<Planet> solarSystem, int locationIndex) {
+		// the scientist can refuel the ship and be a big ol' nerd. but only refuel it 3 times.
+		refuelCount--;
+		
+		if (refuelCount <= 0) {
+			System.out.println(this.getName() + ": \"We're out of chemicals for me to reconstitute some fuel in, I'm sorry :(\"");
+		} else {
+			System.out.println("If I isolote the diatoms from the subatomic thermoenhancer... I can refuel our ship!");
+			System.out.println("*" + this.getName() + " refuels the ship a little bit*");		
+			
+			ship.setFuelLevel(ship.getFuelLevel() + 10);
+		}
+	}
+
+	@Override
+	public void fight(List<CrewMember> crew, Alien alien) {
+		System.out.println(this.getName() + ": \"I'm just a scientist, I'd never hurt a fly!\"");
+		
+		//Alien alien = new Alien("Demigorgan", "A sleek, metallic-skinned being with elongated limbs and glowing, crystalline eyes that shift color with their emotions. Their heads are adorned with bioluminescent tendrils that pulse faintly like a living neural network.", 50, "Xaldorian", 15);
+		Random dice = new Random();
+		// do we create a new alien or somehow find a way to pass in 
+		// the alien that killed SecurityOfficer into this method...
+		
+		while((alien.getHealth() > 0) && (this.getHealth() > 0)) {
+			//fight logic here
+				
+				//Scientist's turn
+				int attkPwr = this.getStrength() - (dice.nextInt(10) + 1);
+				alien.setHealth(alien.getHealth() - attkPwr);
+				System.out.println(this.getName() + " deals " + attkPwr + " damage to the " + alien.getName());
+				
+				if (alien.getHealth() <= 0) {
+	                System.out.println(alien.getName() + " is dead! phew...");
+	                break;
+	            }
+				
+				//Alien turn
+				this.setHealth(this.getHealth() - alien.getStrength());
+				System.out.println(this.getName() + " takes " + alien.getStrength() + " damage from " + alien.getName());
+				
+				if (this.getHealth() <= 0) {
+	                System.out.println("Oh no oh dear God, " + this.getName() + " has been killed...");
+	                System.out.println("The " + alien.getName() + " retreats in victory");
+	                break;
+	            }
+				
+				pressKey();
+		}				
+	}
+
+	@Override
+	public void catchPhrase() {		
+        System.out.println(this.getName() + ": \"Am I a Trekkie? What even is that? I've never heard of such a species.\"");
+	}
+
+
+}
+
+------------------------
+
+package finalproj;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class SecurityOfficer extends CrewMember implements CrewMemberAction { //deomnstrates inheritance by extending the class signiture to include the super class
+												// use the crewMemberActionInterface to have a blueprint of method necessary for function
+	Random dice;
+	//demonstrates encapsulation and field scope
+
+	public SecurityOfficer(String name, int strength, int intellegence, int agility, int skill, int health) {
+		super(name, strength, intellegence, agility, skill, health);		//deomnstrates inheritance by invoking the constructor of its superclass
+		this.dice = new Random();
+	}
+
+	@Override
+	public void action(List<CrewMember> crew, Starship ship, List<Planet> solarSystem, int locationIndex) {
+		// The security officer is the role on the ship that fights aliens, 
+		// so the "scan for aliens" option for our game will be SecurityOfficer.action()
+		
+		if((dice.nextInt(10) + 1) == 10) {
+			// encounter alien
+			System.out.println(this.getName() + ": \"I found an alien!!\"");
+			fight(crew, null); 
+			
+		} else {
+			System.out.println(this.getName() + " didn't find any aliens... but keep an eye out for anything suspicious.");
+		}
+	}
+
+	@Override
+	public void fight(List<CrewMember> crew, Alien alien) {
+		alien = new Alien("Demigorgan", "A sleek, metallic-skinned being with elongated limbs and glowing, crystalline eyes that shift color with their emotions. Their heads are adorned with bioluminescent tendrils that pulse faintly like a living neural network.", 50, "Xaldorian", 15);
+		// do we create a new alien or somehow find a way to pass in 
+		// the alien that killed SecurityOfficer into this method...
+		
+		while((alien.getHealth() > 0) && (this.getHealth() > 0)) {
+				
+			//SecurityOfficer turn
+				int attkPwr = this.getStrength() - (dice.nextInt(10) + 1);
+				alien.setHealth(alien.getHealth() - attkPwr);
+				System.out.println(this.getName() + " deals " + attkPwr + " damage to the " + alien.getName());
+				
+				if (alien.getHealth() <= 0) {
+	                System.out.println(alien.getName() + " is dead! phew...");
+	    			System.out.println(crew.get(3).getName() + ": \"That was a " + alien.getName() + ", " + alien.getDescription() + "\"");
+
+	                
+	                break;
+	            }
+				
+			//Alien turn
+				this.setHealth(this.getHealth() - alien.getStrength());
+				System.out.println(this.getName() + " takes " + alien.getStrength() + " damage from " + alien.getName());
+				
+				if (this.getHealth() <= 0) {
+	                System.out.println("Oh no oh dear God, " + this.getName() + " has been killed...");
+	                System.out.println("The capitan jumps in to fight!");
+	                ((Capitan) crew.get(1)).fight(crew, alien);
+	                break;
+	            }
+				
+				pressKey();
+			
+		}
+	}
+
+	@Override
+	public void catchPhrase() {
+        System.out.println(this.getName() + ": \"All I know is beer, bacon, back rubs and safety\"");
+	}
+
+}
+
+
+---------------------
+
+package finalproj;
+
+public abstract class SpaceEntity { //demonstrates abstraction so an alien or planet can use this class
+	protected String name;
+	protected String description;
+	//demonstrates encapsulation and field scope
+	
+	public SpaceEntity(String name, String description) {
+		this.name = name;
+		this.description = description;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+}
+
+---------------------
+
+package finalproj;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Starship {
+	private String shipName;
+	private int fuelLevel;
+	private int cargoCapacity;
+	private int hullIntegrity;
+	// using JCF
+	private List <Resource> cargo;
+	
+	public Starship(String shipName, int fuelLevel, int cargoCapacity, int hullIntegrity) {
+		this.setShipName(shipName);
+		this.setFuelLevel(fuelLevel);
+		this.setCargoCapacity(cargoCapacity);
+		this.setCargo(new ArrayList<>());
+		this.setHullIntegrity(hullIntegrity);
+	}
+
+	public String getShipName() {
+		return shipName;
+	}
+
+	public void setShipName(String shipName) {
+		this.shipName = shipName;
+	}
+
+	public int getFuelLevel() {
+		return fuelLevel;
+	}
+
+	public void setFuelLevel(int fuelLevel) {
+		this.fuelLevel = fuelLevel;
+	}
+
+	public int getCargoCapacity() {
+		return cargoCapacity;
+	}
+
+	public void setCargoCapacity(int cargoCapacity) {
+		this.cargoCapacity = cargoCapacity;
+	}
+
+	public int getHullIntegrity() {
+		return hullIntegrity;
+	}
+
+	public void setHullIntegrity(int hullIntegrity) {
+		this.hullIntegrity = hullIntegrity;
+	}
+
+	public List <Resource> getCargo() {
+		return cargo;
+	}
+
+	public void setCargo(List <Resource> cargo) {
+		this.cargo = cargo;
+	}
+	
+	@Override // our toString method override
+	public String toString () {
+		if (cargo.isEmpty()) {
+	        return "The Cargo is empty.";
+	    }
+
+	    String result = "Cargo Contents:\n";
+	    for (int i = 0; i < cargo.size(); i++) {
+	        result += (i + 1) + ". " + cargo.get(i).name + "\n";
+	    }
+	    return result;
+	}
+
+}
+
+
+------------------------------
+
+package finalproj_test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
+
+import finalproj.Alien;
+import finalproj.Capitan;
+import finalproj.CrewMember;
+import finalproj.CrewMemberAction;
+import finalproj.Engineer;
+import finalproj.Planet;
+import finalproj.RandomEvent;
+import finalproj.Resource;
+import finalproj.Scientist;
+import finalproj.SecurityOfficer;
+import finalproj.SpaceEntity;
+import finalproj.Starship;
+
+public class GameDriver_test {
+
+	public static void main(String[] args) {
+		
+		Scanner scanner = new Scanner(System.in);
+		
+		System.out.println("What would you like to do?: \n"
+				+ "	1 - Test Normal Operation \n"
+				+ "	2 - (Edge Case): Deplete Fuel and Attempt Travel\n"
+				+ "	3 - (Corner Case): No Fuel and Un-winnable Combat\n"
+				+ "	4 - (Edge Case): Exceed Cargo Capacity\n"
+				+ "	5 - (Corner Case): All crewmember health at 0\n"
+				+ "	6 - Excessive Randomness\n"
+				+ "	7 - Quit \n");
+		int choice = 0;
+		
+		try {
+		    choice = scanner.nextInt();
+		} catch (Exception e) {
+		    System.out.println("Invalid input. Please enter a number between 1 and 4.");
+		    scanner.nextLine(); // Clear the invalid input
+		}
+
+		if (choice < 1 || choice > 7) {
+		    System.out.println("Invalid selection. Please choose a valid option.");
+		}
+		
+		switch (choice) {
+    	
+	        case 1:
+	    		testcase0(); //normal operation
+	        	break;
+	
+	        case 2:
+	    		testcase1(); //(Edge Case): Deplete Fuel and Attempt Travel
+	            break;
+	
+	        case 3:
+	    		testcase2(); //(Corner Case): No Fuel and Un-winnable Combat
+	            break;
+	
+	        case 4:
+	    		testcase4(); //(Edge Case): Exceed Cargo Capacity
+	            break;
+	            
+	        case 5:
+	    		testcase5(); //
+	            break;
+	            
+			case 6:
+				testcase6(); //Excessive Randomness
+				break;
+				
+			case 7:
+				System.out.println("Quitting Game Test...");
+				break;
+
+	
+	        default:
+	            // TODO: Handle input error
+	        	break;
+		}	
+	}
+
+	private static void testcase6() { // excessive randomness
+		
+		// 1. GAME INITIALIZATION
+			
+			//OBJECTS
+			List<CrewMember> crew = new ArrayList<>();
+			List<Planet> solarSystem = new ArrayList<>();
+	        Scanner scanner = new Scanner(System.in);
+	        RandomEvent event;
+	        Random dice = new Random();
+			//				shipName, fuelLevel(Liters), cargoCapacity(slots), hullIntegrity(%)
+			Starship ship = new Starship("SS Latrexa", 1000, 10, 100);
+			//				 name, strength(attkPwr), intellegence(x/10), agility(x/10), skill(x/20), health(%)
+			CrewMember spock = new Capitan("Spock", 25, 8, 6, 18, 100);
+			CrewMember travis = new SecurityOfficer("Travis", 60, 5, 9, 16, 100);
+			CrewMember adam = new Engineer("Adam", 10, 9, 3, 20, 100);
+			CrewMember taylor = new Scientist("Taylor", 15, 8, 4, 19, 100);
+			//						planet name, description
+			Planet neptune = new Planet("Neptune", "A storm-ridden gas giant with an endless sea of swirling green and violet "
+					+ "clouds. The planet's gravity is so intense that its core is rumored to be a crystalline network of "
+					+ "compressed elements, sought after for advanced technology. Lightning arcs across the skies, and "
+					+ "floating mining stations cling perilously to its atmosphere.");
+			Planet saturn = new Planet("Saturn", "A dazzling desert world with golden sands that shimmer under "
+					+ "twin suns. Beneath its surface lie vast caverns filled with bioluminescent flora and crystalline "
+					+ "rivers. The nomadic inhabitants harvest \"sunstones,\" rare minerals that store solar energy, "
+					+ "making the planet a hub for energy traders.");
+			Planet venus = new Planet("Venus", "A frozen tundra planet covered in glaciers and jagged ice peaks. "
+					+ "Aurora-like light displays dance across the sky, generated by the planet's magnetized core. "
+					+ "Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers "
+					+ "come in search of the mysterious relics.");
+			Planet mars = new Planet("Mars", "A lush jungle planet teeming with exotic, bioluminescent "
+					+ "plants and colossal, sentient fungi. Its dense atmosphere glows faintly at night, "
+					+ "illuminating the surface with hues of blue and purple. The native species, Kaelvans, "
+					+ "are telepathic and fiercely protective of the planet’s natural balance.");
+			Planet pluto = new Planet("Pluto", "A volcanic world with rivers of molten lava crisscrossing its "
+					+ "surface. Ash clouds obscure its sky, and massive geysers release superheated steam. Despite its "
+					+ "hostile environment, Vorrakis is rich in valuable ores and is home to fire-resistant creatures "
+					+ "that thrive in the extreme heat.");
+
+			//VARIABLES
+			int locationIndex = 0;
+			boolean gameExit = false;
+	        String[] eventTypes = {"Plague", "Hull Damage", "Resource Theft", "Solar Flare"};
+			
+			//PRE-GAME ROUTINES
+			crew.add(spock);
+			crew.add(travis);
+			crew.add(adam);
+			crew.add(taylor);
+			solarSystem.add(neptune);
+			solarSystem.add(saturn);
+			solarSystem.add(venus);
+			solarSystem.add(mars);
+			solarSystem.add(pluto);
+			
+		// 2. GAME-UPDATE LOOP
+			
+			System.out.println("Let your space adventure begin! All abourd the " + ship.getShipName() + "! \n");
+			
+			while (gameContinue((ArrayList<CrewMember>) crew, ship) && !gameExit) {
+				
+				System.out.println(displayStatus(crew, ship, solarSystem, locationIndex));
+				
+				System.out.println("What would you like to do?: \n"
+						+ "	1 - Travel to another Planet \n"
+						+ "	2 - Scan for resources on this planet \n"
+						+ "	3 - Scan for lifeforms on this planet \n"
+						+ "	4 - Quit \n");
+				int choice;
+				
+				try {
+				    choice = scanner.nextInt();
+				} catch (Exception e) {
+				    System.out.println("Invalid input. Please enter a number between 1 and 4.");
+				    scanner.nextLine(); // Clear the invalid input
+				    continue; // Restart the loop
+				}
+
+				if (choice < 1 || choice > 4) {
+				    System.out.println("Invalid selection. Please choose a valid option.");
+				    continue; // Restart the loop
+				}
+				
+				switch (choice) {
+		    	
+			        case 1:
+			            // Implement logic for travel
+			        	locationIndex = travel(scanner, ship, locationIndex, solarSystem);
+			        	event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+                        event.triggerEvent(event.getEventType(), ship, crew);
+			        	break;
+			
+			        case 2:
+			            // capitan scans the planet for resources
+			        	((Capitan) crew.get(0)).action(crew, ship, solarSystem, locationIndex);
+			        	event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+                        event.triggerEvent(event.getEventType(), ship, crew);
+			            break;
+			
+			        case 3:
+			            // Implement logic for lifeform scan
+			        	((SecurityOfficer) crew.get(1)).action(crew, ship, solarSystem, locationIndex);
+			        	event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+                        event.triggerEvent(event.getEventType(), ship, crew);
+			            break;
+			
+			        case 4:
+			            // Implement logic for break out of game entirely
+			        	System.out.println("Exiting the game...");
+			        	gameExit = true;
+			            break;
+			
+			        default:
+			            // TODO: Handle input error
+			
+			            break;
+				}	
+				//break;
+			}
+			
+		// 3. GAME END
+			scanner.close();
+			System.out.println("GAME OVER");
+			
+	}
+
+	private static void testcase5() { // the plague event is called to instantly kill everyone
+		
+		// 1. GAME INITIALIZATION
+			
+			//OBJECTS
+			List<CrewMember> crew = new ArrayList<>();
+			List<Planet> solarSystem = new ArrayList<>();
+	        Scanner scanner = new Scanner(System.in);
+	        RandomEvent event;
+	        Random dice = new Random();
+			//				shipName, fuelLevel(Liters), cargoCapacity(slots), hullIntegrity(%)
+			Starship ship = new Starship("SS Latrexa", 1000, 10, 100);
+			//				 name, strength(attkPwr), intellegence(x/10), agility(x/10), skill(x/20), health(%)
+			CrewMember spock = new Capitan("Spock", 25, 8, 6, 18, 100);
+			CrewMember travis = new SecurityOfficer("Travis", 60, 5, 9, 16, 100);
+			CrewMember adam = new Engineer("Adam", 10, 9, 3, 20, 100);
+			CrewMember taylor = new Scientist("Taylor", 15, 8, 4, 19, 100);
+			//						planet name, description
+			Planet neptune = new Planet("Neptune", "A storm-ridden gas giant with an endless sea of swirling green and violet "
+					+ "clouds. The planet's gravity is so intense that its core is rumored to be a crystalline network of "
+					+ "compressed elements, sought after for advanced technology. Lightning arcs across the skies, and "
+					+ "floating mining stations cling perilously to its atmosphere.");
+			Planet saturn = new Planet("Saturn", "A dazzling desert world with golden sands that shimmer under "
+					+ "twin suns. Beneath its surface lie vast caverns filled with bioluminescent flora and crystalline "
+					+ "rivers. The nomadic inhabitants harvest \"sunstones,\" rare minerals that store solar energy, "
+					+ "making the planet a hub for energy traders.");
+			Planet venus = new Planet("Venus", "A frozen tundra planet covered in glaciers and jagged ice peaks. "
+					+ "Aurora-like light displays dance across the sky, generated by the planet's magnetized core. "
+					+ "Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers "
+					+ "come in search of the mysterious relics.");
+			Planet mars = new Planet("Mars", "A lush jungle planet teeming with exotic, bioluminescent "
+					+ "plants and colossal, sentient fungi. Its dense atmosphere glows faintly at night, "
+					+ "illuminating the surface with hues of blue and purple. The native species, Kaelvans, "
+					+ "are telepathic and fiercely protective of the planet’s natural balance.");
+			Planet pluto = new Planet("Pluto", "A volcanic world with rivers of molten lava crisscrossing its "
+					+ "surface. Ash clouds obscure its sky, and massive geysers release superheated steam. Despite its "
+					+ "hostile environment, Vorrakis is rich in valuable ores and is home to fire-resistant creatures "
+					+ "that thrive in the extreme heat.");
+
+			//VARIABLES
+			int locationIndex = 0;
+			boolean gameExit = false;
+	        String[] eventTypes = {"Plague", "Hull Damage", "Resource Theft", "Solar Flare"};
+			
+			//PRE-GAME ROUTINES
+			crew.add(spock);
+			crew.add(travis);
+			crew.add(adam);
+			crew.add(taylor);
+			solarSystem.add(neptune);
+			solarSystem.add(saturn);
+			solarSystem.add(venus);
+			solarSystem.add(mars);
+			solarSystem.add(pluto);
+			
+		// 2. GAME-UPDATE LOOP
+			
+			System.out.println("Let your space adventure begin! All abourd the " + ship.getShipName() + "! \n");
+			
+			while (gameContinue((ArrayList<CrewMember>) crew, ship) && !gameExit) {
+				
+				System.out.println(displayStatus(crew, ship, solarSystem, locationIndex));
+				
+				System.out.println("What would you like to do?: \n"
+						+ "	1 - Travel to another Planet \n"
+						+ "	2 - Scan for resources on this planet \n"
+						+ "	3 - Scan for lifeforms on this planet \n"
+						+ "	4 - Quit \n");
+				int choice;
+				
+				try {
+				    choice = scanner.nextInt();
+				} catch (Exception e) {
+				    System.out.println("Invalid input. Please enter a number between 1 and 4.");
+				    scanner.nextLine(); // Clear the invalid input
+				    continue; // Restart the loop
+				}
+
+				if (choice < 1 || choice > 4) {
+				    System.out.println("Invalid selection. Please choose a valid option.");
+				    continue; // Restart the loop
+				}
+				
+				switch (choice) {
+		    	
+			        case 1:
+			            // Implement logic for travel
+			        	locationIndex = travel(scanner, ship, locationIndex, solarSystem);
+			        	event = new RandomEvent(eventTypes[0], "A random travel event occurred!");
+                        event.triggerEvent(event.getEventType(), ship, crew);
+			        	break;
+			
+			        case 2:
+			            // capitan scans the planet for resources
+			        	((Capitan) crew.get(0)).action(crew, ship, solarSystem, locationIndex);
+			        	event = new RandomEvent(eventTypes[0], "A random travel event occurred!");
+                        event.triggerEvent(event.getEventType(), ship, crew);
+			            break;
+			
+			        case 3:
+			            // Implement logic for lifeform scan
+			        	((SecurityOfficer) crew.get(1)).action(crew, ship, solarSystem, locationIndex);
+			        	event = new RandomEvent(eventTypes[0], "A random travel event occurred!");
+                        event.triggerEvent(event.getEventType(), ship, crew);
+			            break;
+			
+			        case 4:
+			            // Implement logic for break out of game entirely
+			        	System.out.println("Exiting the game...");
+			        	gameExit = true;
+			            break;
+			
+			        default:
+			            // TODO: Handle input error
+			
+			            break;
+				}	
+				//break;
+			}
+			
+		// 3. GAME END
+			scanner.close();
+			System.out.println("GAME OVER");
+			
+	}
+
+	private static void testcase4() { // ship instantiates with a cargo capacity of 1
+		
+		// 1. GAME INITIALIZATION
+			
+			//OBJECTS
+			List<CrewMember> crew = new ArrayList<>();
+			List<Planet> solarSystem = new ArrayList<>();
+	        Scanner scanner = new Scanner(System.in);
+	        RandomEvent event;
+	        Random dice = new Random();
+			//				shipName, fuelLevel(Liters), cargoCapacity(slots), hullIntegrity(%)
+			Starship ship = new Starship("SS Latrexa", 1000, 1, 100);
+			//				 name, strength(attkPwr), intellegence(x/10), agility(x/10), skill(x/20), health(%)
+			CrewMember spock = new Capitan("Spock", 25, 8, 6, 18, 100);
+			CrewMember travis = new SecurityOfficer("Travis", 60, 5, 9, 16, 100);
+			CrewMember adam = new Engineer("Adam", 10, 9, 3, 20, 100);
+			CrewMember taylor = new Scientist("Taylor", 15, 8, 4, 19, 100);
+			//						planet name, description
+			Planet neptune = new Planet("Neptune", "A storm-ridden gas giant with an endless sea of swirling green and violet "
+					+ "clouds. The planet's gravity is so intense that its core is rumored to be a crystalline network of "
+					+ "compressed elements, sought after for advanced technology. Lightning arcs across the skies, and "
+					+ "floating mining stations cling perilously to its atmosphere.");
+			Planet saturn = new Planet("Saturn", "A dazzling desert world with golden sands that shimmer under "
+					+ "twin suns. Beneath its surface lie vast caverns filled with bioluminescent flora and crystalline "
+					+ "rivers. The nomadic inhabitants harvest \"sunstones,\" rare minerals that store solar energy, "
+					+ "making the planet a hub for energy traders.");
+			Planet venus = new Planet("Venus", "A frozen tundra planet covered in glaciers and jagged ice peaks. "
+					+ "Aurora-like light displays dance across the sky, generated by the planet's magnetized core. "
+					+ "Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers "
+					+ "come in search of the mysterious relics.");
+			Planet mars = new Planet("Mars", "A lush jungle planet teeming with exotic, bioluminescent "
+					+ "plants and colossal, sentient fungi. Its dense atmosphere glows faintly at night, "
+					+ "illuminating the surface with hues of blue and purple. The native species, Kaelvans, "
+					+ "are telepathic and fiercely protective of the planet’s natural balance.");
+			Planet pluto = new Planet("Pluto", "A volcanic world with rivers of molten lava crisscrossing its "
+					+ "surface. Ash clouds obscure its sky, and massive geysers release superheated steam. Despite its "
+					+ "hostile environment, Vorrakis is rich in valuable ores and is home to fire-resistant creatures "
+					+ "that thrive in the extreme heat.");
+
+			//VARIABLES
+			int locationIndex = 0;
+			boolean gameExit = false;
+	        String[] eventTypes = {"Plague", "Hull Damage", "Resource Theft", "Solar Flare"};
+			
+			//PRE-GAME ROUTINES
+			crew.add(spock);
+			crew.add(travis);
+			crew.add(adam);
+			crew.add(taylor);
+			solarSystem.add(neptune);
+			solarSystem.add(saturn);
+			solarSystem.add(venus);
+			solarSystem.add(mars);
+			solarSystem.add(pluto);
+			
+		// 2. GAME-UPDATE LOOP
+			
+			System.out.println("Let your space adventure begin! All abourd the " + ship.getShipName() + "! \n");
+			
+			while (gameContinue((ArrayList<CrewMember>) crew, ship) && !gameExit) {
+				
+				System.out.println(displayStatus(crew, ship, solarSystem, locationIndex));
+				
+				System.out.println("What would you like to do?: \n"
+						+ "	1 - Travel to another Planet \n"
+						+ "	2 - Scan for resources on this planet \n"
+						+ "	3 - Scan for lifeforms on this planet \n"
+						+ "	4 - Quit \n");
+				int choice;
+				
+				try {
+				    choice = scanner.nextInt();
+				} catch (Exception e) {
+				    System.out.println("Invalid input. Please enter a number between 1 and 4.");
+				    scanner.nextLine(); // Clear the invalid input
+				    continue; // Restart the loop
+				}
+
+				if (choice < 1 || choice > 4) {
+				    System.out.println("Invalid selection. Please choose a valid option.");
+				    continue; // Restart the loop
+				}
+				
+				switch (choice) {
+		    	
+			        case 1:
+			            // Implement logic for travel
+			        	locationIndex = travel(scanner, ship, locationIndex, solarSystem);
+			        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+	                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+	                        event.triggerEvent(event.getEventType(), ship, crew);
+	                    }
+			        	break;
+			
+			        case 2:
+			            // capitan scans the planet for resources
+			        	((Capitan) crew.get(0)).action(crew, ship, solarSystem, locationIndex);
+			        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+	                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+	                        event.triggerEvent(event.getEventType(), ship, crew);
+	                    }
+			            break;
+			
+			        case 3:
+			            // Implement logic for lifeform scan
+			        	((SecurityOfficer) crew.get(1)).action(crew, ship, solarSystem, locationIndex);
+			        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+	                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+	                        event.triggerEvent(event.getEventType(), ship, crew);
+	                    }
+			            break;
+			
+			        case 4:
+			            // Implement logic for break out of game entirely
+			        	System.out.println("Exiting the game...");
+			        	gameExit = true;
+			            break;
+			
+			        default:
+			            // TODO: Handle input error
+			
+			            break;
+				}	
+				//break;
+			}
+			
+		// 3. GAME END
+			scanner.close();
+			System.out.println("GAME OVER");
+			
+	}
+
+	private static void testcase2() { // (ship starts with 0 fuel and Capitan class instantiates an alien with 500 health and 150 attkPwr)
+		
+		// 1. GAME INITIALIZATION 
+			
+			//OBJECTS
+			List<CrewMember> crew = new ArrayList<>();
+			List<Planet> solarSystem = new ArrayList<>();
+	        Scanner scanner = new Scanner(System.in);
+	        RandomEvent event;
+	        Random dice = new Random();
+			//				shipName, fuelLevel(Liters), cargoCapacity(slots), hullIntegrity(%)
+			Starship ship = new Starship("SS Latrexa", 0, 10, 100);
+			//				 name, strength(attkPwr), intellegence(x/10), agility(x/10), skill(x/20), health(%)
+			CrewMember spock = new Capitan("Spock", 25, 8, 6, 18, 100);
+			CrewMember travis = new SecurityOfficer("Travis", 60, 5, 9, 16, 100);
+			CrewMember adam = new Engineer("Adam", 10, 9, 3, 20, 100);
+			CrewMember taylor = new Scientist("Taylor", 15, 8, 4, 19, 100);
+			//						planet name, description
+			Planet neptune = new Planet("Neptune", "A storm-ridden gas giant with an endless sea of swirling green and violet "
+					+ "clouds. The planet's gravity is so intense that its core is rumored to be a crystalline network of "
+					+ "compressed elements, sought after for advanced technology. Lightning arcs across the skies, and "
+					+ "floating mining stations cling perilously to its atmosphere.");
+			Planet saturn = new Planet("Saturn", "A dazzling desert world with golden sands that shimmer under "
+					+ "twin suns. Beneath its surface lie vast caverns filled with bioluminescent flora and crystalline "
+					+ "rivers. The nomadic inhabitants harvest \"sunstones,\" rare minerals that store solar energy, "
+					+ "making the planet a hub for energy traders.");
+			Planet venus = new Planet("Venus", "A frozen tundra planet covered in glaciers and jagged ice peaks. "
+					+ "Aurora-like light displays dance across the sky, generated by the planet's magnetized core. "
+					+ "Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers "
+					+ "come in search of the mysterious relics.");
+			Planet mars = new Planet("Mars", "A lush jungle planet teeming with exotic, bioluminescent "
+					+ "plants and colossal, sentient fungi. Its dense atmosphere glows faintly at night, "
+					+ "illuminating the surface with hues of blue and purple. The native species, Kaelvans, "
+					+ "are telepathic and fiercely protective of the planet’s natural balance.");
+			Planet pluto = new Planet("Pluto", "A volcanic world with rivers of molten lava crisscrossing its "
+					+ "surface. Ash clouds obscure its sky, and massive geysers release superheated steam. Despite its "
+					+ "hostile environment, Vorrakis is rich in valuable ores and is home to fire-resistant creatures "
+					+ "that thrive in the extreme heat.");
+
+			//VARIABLES
+			int locationIndex = 0;
+			boolean gameExit = false;
+	        String[] eventTypes = {"Plague", "Hull Damage", "Resource Theft", "Solar Flare"};
+			
+			//PRE-GAME ROUTINES
+			crew.add(spock);
+			crew.add(travis);
+			crew.add(adam);
+			crew.add(taylor);
+			solarSystem.add(neptune);
+			solarSystem.add(saturn);
+			solarSystem.add(venus);
+			solarSystem.add(mars);
+			solarSystem.add(pluto);
+			
+		// 2. GAME-UPDATE LOOP
+			
+			System.out.println("Let your space adventure begin! All abourd the " + ship.getShipName() + "! \n");
+			
+			while (gameContinue((ArrayList<CrewMember>) crew, ship) && gameExit==false) {
+				
+				System.out.println(displayStatus(crew, ship, solarSystem, locationIndex));
+				
+				System.out.println("What would you like to do?: \n"
+						+ "	1 - Travel to another Planet \n"
+						+ "	2 - Scan for resources on this planet \n"
+						+ "	3 - Scan for lifeforms on this planet \n"
+						+ "	4 - Quit \n");
+				int choice;
+				
+				try {
+				    choice = scanner.nextInt();
+				} catch (Exception e) {
+				    System.out.println("Invalid input. Please enter a number between 1 and 4.");
+				    scanner.nextLine(); // Clear the invalid input
+				    continue; // Restart the loop
+				}
+
+				if (choice < 1 || choice > 4) {
+				    System.out.println("Invalid selection. Please choose a valid option.");
+				    continue; // Restart the loop
+				}
+				
+				switch (choice) {
+		    	
+			        case 1:
+			            // Implement logic for travel
+			        	locationIndex = travel(scanner, ship, locationIndex, solarSystem);
+			        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+	                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+	                        event.triggerEvent(event.getEventType(), ship, crew);
+	                    }
+			        	break;
+			
+			        case 2:
+			            // capitan scans the planet for resources
+			        	((Capitan) crew.get(0)).action(crew, ship, solarSystem, locationIndex);
+			        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+	                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+	                        event.triggerEvent(event.getEventType(), ship, crew);
+	                    }
+			            break;
+			
+			        case 3:
+			            // Implement logic for lifeform scan
+			        	((SecurityOfficer) crew.get(1)).action(crew, ship, solarSystem, locationIndex);
+			        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+	                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+	                        event.triggerEvent(event.getEventType(), ship, crew);
+	                    }
+			            break;
+			
+			        case 4:
+			            // Implement logic for break out of game entirely
+			        	System.out.println("Exiting the game...");
+			        	gameExit = true;
+			            break;
+			
+			        default:
+			            // TODO: Handle input error
+			
+			            break;
+				}	
+				//break;
+			}
+			
+		// 3. GAME END
+			scanner.close();
+			System.out.println("GAME OVER");
+			
+	}
+
+	private static void testcase1() { // (ship starts with 10 fuel)
+		
+		// 1. GAME INITIALIZATION
+			
+			//OBJECTS
+			List<CrewMember> crew = new ArrayList<>();
+			List<Planet> solarSystem = new ArrayList<>();
+	        Scanner scanner = new Scanner(System.in);
+	        RandomEvent event;
+	        Random dice = new Random();
+			//				shipName, fuelLevel(Liters), cargoCapacity(slots), hullIntegrity(%)
+			Starship ship = new Starship("SS Latrexa", 10, 10, 100);
+			//				 name, strength(attkPwr), intellegence(x/10), agility(x/10), skill(x/20), health(%)
+			CrewMember spock = new Capitan("Spock", 25, 8, 6, 18, 100);
+			CrewMember travis = new SecurityOfficer("Travis", 60, 5, 9, 16, 100);
+			CrewMember adam = new Engineer("Adam", 10, 9, 3, 20, 100);
+			CrewMember taylor = new Scientist("Taylor", 15, 8, 4, 19, 100);
+			//						planet name, description
+			Planet neptune = new Planet("Neptune", "A storm-ridden gas giant with an endless sea of swirling green and violet "
+					+ "clouds. The planet's gravity is so intense that its core is rumored to be a crystalline network of "
+					+ "compressed elements, sought after for advanced technology. Lightning arcs across the skies, and "
+					+ "floating mining stations cling perilously to its atmosphere.");
+			Planet saturn = new Planet("Saturn", "A dazzling desert world with golden sands that shimmer under "
+					+ "twin suns. Beneath its surface lie vast caverns filled with bioluminescent flora and crystalline "
+					+ "rivers. The nomadic inhabitants harvest \"sunstones,\" rare minerals that store solar energy, "
+					+ "making the planet a hub for energy traders.");
+			Planet venus = new Planet("Venus", "A frozen tundra planet covered in glaciers and jagged ice peaks. "
+					+ "Aurora-like light displays dance across the sky, generated by the planet's magnetized core. "
+					+ "Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers "
+					+ "come in search of the mysterious relics.");
+			Planet mars = new Planet("Mars", "A lush jungle planet teeming with exotic, bioluminescent "
+					+ "plants and colossal, sentient fungi. Its dense atmosphere glows faintly at night, "
+					+ "illuminating the surface with hues of blue and purple. The native species, Kaelvans, "
+					+ "are telepathic and fiercely protective of the planet’s natural balance.");
+			Planet pluto = new Planet("Pluto", "A volcanic world with rivers of molten lava crisscrossing its "
+					+ "surface. Ash clouds obscure its sky, and massive geysers release superheated steam. Despite its "
+					+ "hostile environment, Vorrakis is rich in valuable ores and is home to fire-resistant creatures "
+					+ "that thrive in the extreme heat.");
+
+			//VARIABLES
+			int locationIndex = 0;
+			boolean gameExit = false;
+	        String[] eventTypes = {"Plague", "Hull Damage", "Resource Theft", "Solar Flare"};
+			
+			//PRE-GAME ROUTINES
+			crew.add(spock);
+			crew.add(travis);
+			crew.add(adam);
+			crew.add(taylor);
+			solarSystem.add(neptune);
+			solarSystem.add(saturn);
+			solarSystem.add(venus);
+			solarSystem.add(mars);
+			solarSystem.add(pluto);
+			
+		// 2. GAME-UPDATE LOOP
+			
+			System.out.println("Let your space adventure begin! All abourd the " + ship.getShipName() + "! \n");
+			
+			while (gameContinue((ArrayList<CrewMember>) crew, ship) && gameExit==false) {
+				
+				System.out.println(displayStatus(crew, ship, solarSystem, locationIndex));
+				
+				System.out.println("What would you like to do?: \n"
+						+ "	1 - Travel to another Planet \n"
+						+ "	2 - Scan for resources on this planet \n"
+						+ "	3 - Scan for lifeforms on this planet \n"
+						+ "	4 - Quit \n");
+				int choice;
+				
+				try {
+				    choice = scanner.nextInt();
+				} catch (Exception e) {
+				    System.out.println("Invalid input. Please enter a number between 1 and 4.");
+				    scanner.nextLine(); // Clear the invalid input
+				    continue; // Restart the loop
+				}
+
+				if (choice < 1 || choice > 4) {
+				    System.out.println("Invalid selection. Please choose a valid option.");
+				    continue; // Restart the loop
+				}
+				
+				switch (choice) {
+		    	
+			        case 1:
+			            // Implement logic for travel
+			        	locationIndex = travel(scanner, ship, locationIndex, solarSystem);
+			        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+	                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+	                        event.triggerEvent(event.getEventType(), ship, crew);
+	                    }
+			        	break;
+			
+			        case 2:
+			            // capitan scans the planet for resources
+			        	((Capitan) crew.get(0)).action(crew, ship, solarSystem, locationIndex);
+			        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+	                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+	                        event.triggerEvent(event.getEventType(), ship, crew);
+	                    }
+			            break;
+			
+			        case 3:
+			            // Implement logic for lifeform scan
+			        	((SecurityOfficer) crew.get(1)).action(crew, ship, solarSystem, locationIndex);
+			        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+	                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+	                        event.triggerEvent(event.getEventType(), ship, crew);
+	                    }
+			            break;
+			
+			        case 4:
+			            // Implement logic for break out of game entirely
+			        	System.out.println("Exiting the game...");
+			        	gameExit = true;
+			            break;
+			
+			        default:
+			            // TODO: Handle input error
+			
+			            break;
+				}	
+				//break;
+			}
+			
+		// 3. GAME END
+			scanner.close();
+			System.out.println("GAME OVER");
+			
+	}
+
+	private static void testcase0() { // normal operation
+		
+		// 1. GAME INITIALIZATION
+			
+			//OBJECTS
+			List<CrewMember> crew = new ArrayList<>();
+			List<Planet> solarSystem = new ArrayList<>();
+	        Scanner scanner = new Scanner(System.in);
+	        RandomEvent event;
+	        Random dice = new Random();
+			//				shipName, fuelLevel(Liters), cargoCapacity(slots), hullIntegrity(%)
+			Starship ship = new Starship("SS Latrexa", 1000, 10, 100);
+			//				 name, strength(attkPwr), intellegence(x/10), agility(x/10), skill(x/20), health(%)
+			CrewMember spock = new Capitan("Spock", 25, 8, 6, 18, 100);
+			CrewMember travis = new SecurityOfficer("Travis", 60, 5, 9, 16, 100);
+			CrewMember adam = new Engineer("Adam", 10, 9, 3, 20, 100);
+			CrewMember taylor = new Scientist("Taylor", 15, 8, 4, 19, 100);
+			//						planet name, description
+			Planet neptune = new Planet("Neptune", "A storm-ridden gas giant with an endless sea of swirling green and violet "
+					+ "clouds. The planet's gravity is so intense that its core is rumored to be a crystalline network of "
+					+ "compressed elements, sought after for advanced technology. Lightning arcs across the skies, and "
+					+ "floating mining stations cling perilously to its atmosphere.");
+			Planet saturn = new Planet("Saturn", "A dazzling desert world with golden sands that shimmer under "
+					+ "twin suns. Beneath its surface lie vast caverns filled with bioluminescent flora and crystalline "
+					+ "rivers. The nomadic inhabitants harvest \"sunstones,\" rare minerals that store solar energy, "
+					+ "making the planet a hub for energy traders.");
+			Planet venus = new Planet("Venus", "A frozen tundra planet covered in glaciers and jagged ice peaks. "
+					+ "Aurora-like light displays dance across the sky, generated by the planet's magnetized core. "
+					+ "Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers "
+					+ "come in search of the mysterious relics.");
+			Planet mars = new Planet("Mars", "A lush jungle planet teeming with exotic, bioluminescent "
+					+ "plants and colossal, sentient fungi. Its dense atmosphere glows faintly at night, "
+					+ "illuminating the surface with hues of blue and purple. The native species, Kaelvans, "
+					+ "are telepathic and fiercely protective of the planet’s natural balance.");
+			Planet pluto = new Planet("Pluto", "A volcanic world with rivers of molten lava crisscrossing its "
+					+ "surface. Ash clouds obscure its sky, and massive geysers release superheated steam. Despite its "
+					+ "hostile environment, Vorrakis is rich in valuable ores and is home to fire-resistant creatures "
+					+ "that thrive in the extreme heat.");
+
+			//VARIABLES
+			int locationIndex = 0;
+			boolean gameExit = false;
+	        String[] eventTypes = {"Plague", "Hull Damage", "Resource Theft", "Solar Flare"};
+			
+			//PRE-GAME ROUTINES
+			crew.add(spock);
+			crew.add(travis);
+			crew.add(adam);
+			crew.add(taylor);
+			solarSystem.add(neptune);
+			solarSystem.add(saturn);
+			solarSystem.add(venus);
+			solarSystem.add(mars);
+			solarSystem.add(pluto);
+			
+		// 2. GAME-UPDATE LOOP
+			
+			System.out.println("Let your space adventure begin! All abourd the " + ship.getShipName() + "! \n");
+			
+			while (gameContinue((ArrayList<CrewMember>) crew, ship) && !gameExit) {
+				
+				System.out.println(displayStatus(crew, ship, solarSystem, locationIndex));
+				
+				System.out.println("What would you like to do?: \n"
+						+ "	1 - Travel to another Planet \n"
+						+ "	2 - Scan for resources on this planet \n"
+						+ "	3 - Scan for lifeforms on this planet \n"
+						+ "	4 - Quit \n");
+				int choice;
+				
+				try {
+				    choice = scanner.nextInt();
+				} catch (Exception e) {
+				    System.out.println("Invalid input. Please enter a number between 1 and 4.");
+				    scanner.nextLine(); // Clear the invalid input
+				    continue; // Restart the loop
+				}
+
+				if (choice < 1 || choice > 4) {
+				    System.out.println("Invalid selection. Please choose a valid option.");
+				    continue; // Restart the loop
+				}
+				
+				switch (choice) {
+		    	
+			        case 1:
+			            // Implement logic for travel
+			        	locationIndex = travel(scanner, ship, locationIndex, solarSystem);
+			        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+	                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+	                        event.triggerEvent(event.getEventType(), ship, crew);
+	                    }
+			        	break;
+			
+			        case 2:
+			            // capitan scans the planet for resources
+			        	((Capitan) crew.get(0)).action(crew, ship, solarSystem, locationIndex);
+			        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+	                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+	                        event.triggerEvent(event.getEventType(), ship, crew);
+	                    }
+			            break;
+			
+			        case 3:
+			            // Implement logic for lifeform scan
+			        	((SecurityOfficer) crew.get(1)).action(crew, ship, solarSystem, locationIndex);
+			        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+	                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+	                        event.triggerEvent(event.getEventType(), ship, crew);
+	                    }
+			            break;
+			
+			        case 4:
+			            // Implement logic for break out of game entirely
+			        	System.out.println("Exiting the game...");
+			        	gameExit = true;
+			            break;
+			
+			        default:
+			            // TODO: Handle input error
+			
+			            break;
+				}	
+				//break;
+			}
+			
+		// 3. GAME END
+			scanner.close();
+			System.out.println("GAME OVER");
+			
+	}
+	
+	public static boolean gameContinue(ArrayList<CrewMember> crew, Starship ship) {
+		int condition = 0;
+		// Check if at least one crew member is alive
+	    for (CrewMember member : crew) {
+	        if (member.getHealth() <= 0) {
+	            condition++;
+	        }
+	    }
+
+	    if ( condition == 4 || ship.getFuelLevel() <= 0 || ship.getHullIntegrity() <= 0) {
+	        return false; // Game ends if any conditions are met
+	    }
+
+	    return true; // Game continues otherwise
+	}
+	
+	public static String displayStatus(List<CrewMember> crew, Starship ship, List<Planet> solarSystem, int locationIndex) {
+		return "\nCURRENT LOCATION: " + solarSystem.get(locationIndex) + "\n\n"
+			 + crew.get(0).getName() + "'s Health: " + crew.get(0).getHealth() + "\n"
+			 + crew.get(1).getName() + "'s Health: " + crew.get(1).getHealth() + "\n"
+			 + crew.get(2).getName() + "'s Health: " + crew.get(2).getHealth() + "\n"
+			 + crew.get(3).getName() + "'s Health: " + crew.get(3).getHealth() + "\n\n"
+			 + ship.getShipName() + "'s Fuel Level: " + ship.getFuelLevel() + "\n"
+			 + ship.getShipName() + "'s Hull Integrity: " + ship.getHullIntegrity() + "\n";
+	}
+	
+	public static int travel(Scanner scanner, Starship ship, int locationIndex, List<Planet> solarSystem) {
+				
+		System.out.println("Where would you like to travel?: \n"
+				+ "	0 - Neptune \n"
+				+ "	1 - Saturn \n"
+				+ "	2 - Venus \n"
+				+ "	3 - Mars \n"
+				+ "	4 - Pluto \n");
+		int planetChoice = 0;
+		
+		try {
+		    planetChoice = scanner.nextInt();
+		    if (planetChoice < 0 || planetChoice >= solarSystem.size()) {
+		        System.out.println("Invalid planet selection. Please select a valid option.");
+		        //break; // Exit travel function
+		    }
+		} catch (Exception e) {
+		    System.out.println("Invalid input. Please enter a number between 0 and 4.");
+		    scanner.nextLine(); // Clear invalid input
+		    //break; // Exit travel function
+		}
+		
+		int cost = Math.abs((planetChoice - locationIndex) * 10);
+		
+		if(cost > ship.getFuelLevel()) {
+			System.out.println("Not enough fuel for this jump...");
+			return locationIndex;
+		}
+		
+		System.out.println("It costs " + cost + "fuel to jump to this planet, proceed?	(Y / N)");
+	    scanner.nextLine(); 
+		String confirmation = "";
+		
+		while (true) {
+			confirmation = scanner.nextLine().trim().toUpperCase();
+			 if (confirmation.equals("Y")) {
+			        System.out.println("Traveling to " + solarSystem.get(planetChoice).getName() + "...");
+			        ship.setFuelLevel(ship.getFuelLevel() - cost);
+			        locationIndex = planetChoice; // Update location index
+			        break;
+			    } else if (confirmation.equals("N")) {
+			        System.out.println("Canceling space jump...");
+			        break;
+			    } else {
+			        System.out.println("Invalid input. Please enter 'Y' to proceed or 'N' to cancel.");
+			    }
+		}
+		return locationIndex;	
+	}
+
+}
+
+---------------------------
+
+package finalproj_test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
+
+import finalproj.Alien;
+import finalproj.Capitan;
+import finalproj.CrewMember;
+import finalproj.CrewMemberAction;
+import finalproj.Engineer;
+import finalproj.Planet;
+import finalproj.RandomEvent;
+import finalproj.Resource;
+import finalproj.Scientist;
+import finalproj.SecurityOfficer;
+import finalproj.SpaceEntity;
+import finalproj.Starship;
+
+public class GameDriver {
+
+	public static void main(String[] args) {
+		
+	// 1. GAME INITIALIZATION
+		
+		//OBJECTS
+		//polymorphism, by having our objects be declared and initilized as diffferent but related classes
+		List<CrewMember> crew = new ArrayList<>();
+		List<Planet> solarSystem = new ArrayList<>();
+        Scanner scanner = new Scanner(System.in);
+        RandomEvent event;
+        Random dice = new Random();
+		//				shipName, fuelLevel(Liters), cargoCapacity(slots), hullIntegrity(%)
+		Starship ship = new Starship("SS Latrexa", 1000, 10, 100);
+		//				 name, strength(attkPwr), intellegence(x/10), agility(x/10), skill(x/20), health(%)
+		CrewMember spock = new Capitan("Spock", 25, 8, 6, 18, 100);
+		CrewMember travis = new SecurityOfficer("Travis", 60, 5, 9, 16, 100);
+		CrewMember adam = new Engineer("Adam", 10, 9, 3, 20, 100);
+		CrewMember taylor = new Scientist("Taylor", 15, 8, 4, 19, 100);
+		//						planet name, description
+		Planet neptune = new Planet("Neptune", "A storm-ridden gas giant with an endless sea of swirling green and violet "
+				+ "clouds. The planet's gravity is so intense that its core is rumored to be a crystalline network of "
+				+ "compressed elements, sought after for advanced technology. Lightning arcs across the skies, and "
+				+ "floating mining stations cling perilously to its atmosphere.");
+		Planet saturn = new Planet("Saturn", "A dazzling desert world with golden sands that shimmer under "
+				+ "twin suns. Beneath its surface lie vast caverns filled with bioluminescent flora and crystalline "
+				+ "rivers. The nomadic inhabitants harvest \"sunstones,\" rare minerals that store solar energy, "
+				+ "making the planet a hub for energy traders.");
+		Planet venus = new Planet("Venus", "A frozen tundra planet covered in glaciers and jagged ice peaks. "
+				+ "Aurora-like light displays dance across the sky, generated by the planet's magnetized core. "
+				+ "Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers "
+				+ "come in search of the mysterious relics.");
+		Planet mars = new Planet("Mars", "A lush jungle planet teeming with exotic, bioluminescent "
+				+ "plants and colossal, sentient fungi. Its dense atmosphere glows faintly at night, "
+				+ "illuminating the surface with hues of blue and purple. The native species, Kaelvans, "
+				+ "are telepathic and fiercely protective of the planet’s natural balance.");
+		Planet pluto = new Planet("Pluto", "A volcanic world with rivers of molten lava crisscrossing its "
+				+ "surface. Ash clouds obscure its sky, and massive geysers release superheated steam. Despite its "
+				+ "hostile environment, Vorrakis is rich in valuable ores and is home to fire-resistant creatures "
+				+ "that thrive in the extreme heat.");
+
+		//VARIABLES
+		int locationIndex = 0;
+		boolean gameExit = false;
+        String[] eventTypes = {"Plague", "Hull Damage", "Resource Theft", "Solar Flare"};
+		
+		//PRE-GAME ROUTINES
+		crew.add(spock);
+		crew.add(travis);
+		crew.add(adam);
+		crew.add(taylor);
+		solarSystem.add(neptune);
+		solarSystem.add(saturn);
+		solarSystem.add(venus);
+		solarSystem.add(mars);
+		solarSystem.add(pluto);
+		
+	// 2. GAME-UPDATE LOOP
+		
+		System.out.println("Let your space adventure begin! All abourd the " + ship.getShipName() + "! \n");
+		
+		while (gameContinue((ArrayList<CrewMember>) crew, ship) && !gameExit) {
+			
+			System.out.println(displayStatus(crew, ship, solarSystem, locationIndex));
+			
+			System.out.println("What would you like to do?: \n"
+					+ "	1 - Travel to another Planet \n"
+					+ "	2 - Scan for resources on this planet \n"
+					+ "	3 - Scan for lifeforms on this planet \n"
+					+ "	4 - Quit \n");
+			int choice;
+			
+			try {
+			    choice = scanner.nextInt();
+			} catch (Exception e) {
+			    System.out.println("Invalid input. Please enter a number between 1 and 4.");
+			    scanner.nextLine(); // Clear the invalid input
+			    continue; // Restart the loop
+			}
+
+			if (choice < 1 || choice > 4) {
+			    System.out.println("Invalid selection. Please choose a valid option.");
+			    continue; // Restart the loop
+			}
+			
+			switch (choice) {
+	    	
+		        case 1:
+		            // Implement logic for travel
+		        	locationIndex = travel(scanner, ship, locationIndex, solarSystem);
+		        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+                        event.triggerEvent(event.getEventType(), ship, crew);
+                    }
+		        	break;
+		
+		        case 2:
+		            // capitan scans the planet for resources
+		        	((Capitan) crew.get(0)).action(crew, ship, solarSystem, locationIndex);
+		        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+                        event.triggerEvent(event.getEventType(), ship, crew);
+                    }
+		            break;
+		
+		        case 3:
+		            // Implement logic for lifeform scan
+		        	((SecurityOfficer) crew.get(1)).action(crew, ship, solarSystem, locationIndex);
+		        	if ((dice.nextInt(100) + 1) == 0) { // 1% chance of triggering an event
+                        event = new RandomEvent(eventTypes[dice.nextInt(eventTypes.length)], "A random travel event occurred!");
+                        event.triggerEvent(event.getEventType(), ship, crew);
+                    }
+		            break;
+		
+		        case 4:
+		            // Implement logic for break out of game entirely
+		        	System.out.println("Exiting the game...");
+		        	gameExit = true;
+		            break;
+		
+		        default:
+		            // TODO: Handle input error
+		
+		            break;
+			}	
+			//break;
+		}
+		
+	// 3. GAME END
+		scanner.close();
+		System.out.println("GAME OVER");
+
+	}
+	
+	public static boolean gameContinue(ArrayList<CrewMember> crew, Starship ship) {
+		int condition = 0;
+		// Check if at least one crew member is alive
+	    for (CrewMember member : crew) {
+	        if (member.getHealth() <= 0) {
+	            condition++;
+	        }
+	    }
+
+	    if ( condition == 4 || ship.getFuelLevel() <= 0 ) {
+	        return false; // Game ends if either conditions are met
+	    }
+
+	    return true; // Game continues otherwise
+	}
+	
+	public static String displayStatus(List<CrewMember> crew, Starship ship, List<Planet> solarSystem, int locationIndex) {
+		return "\nCURRENT LOCATION: " + solarSystem.get(locationIndex) + "\n\n"
+			 + crew.get(0).getName() + "'s Health: " + crew.get(0).getHealth() + "\n"
+			 + crew.get(1).getName() + "'s Health: " + crew.get(1).getHealth() + "\n"
+			 + crew.get(2).getName() + "'s Health: " + crew.get(2).getHealth() + "\n"
+			 + crew.get(3).getName() + "'s Health: " + crew.get(3).getHealth() + "\n\n"
+			 + ship.getShipName() + "'s Fuel Level: " + ship.getFuelLevel() + "\n"
+			 + ship.getShipName() + "'s Hull Integrity: " + ship.getHullIntegrity() + "\n";
+	}
+	
+	public static int travel(Scanner scanner, Starship ship, int locationIndex, List<Planet> solarSystem) {
+				
+		System.out.println("Where would you like to travel?: \n"
+				+ "	0 - Neptune \n"
+				+ "	1 - Saturn \n"
+				+ "	2 - Venus \n"
+				+ "	3 - Mars \n"
+				+ "	4 - Pluto \n");
+		int planetChoice = 0;
+		
+		try { //error checking
+		    planetChoice = scanner.nextInt();
+		    if (planetChoice < 0 || planetChoice >= solarSystem.size()) {
+		        System.out.println("Invalid planet selection. Please select a valid option.");
+		        //break; // Exit travel function
+		    }
+		} catch (Exception e) {
+		    System.out.println("Invalid input. Please enter a number between 0 and 4.");
+		    scanner.nextLine(); // Clear invalid input
+		    //break; // Exit travel function
+		}
+		
+		int cost = Math.abs((planetChoice - locationIndex) * 10);
+		
+		if(cost > ship.getFuelLevel()) {
+			System.out.println("Not enough fuel for this jump...");
+			return locationIndex;
+		}
+		
+		System.out.println("It costs " + cost + "fuel to jump to this planet, proceed?	(Y / N)");
+	    scanner.nextLine(); 
+		String confirmation = "";
+		
+		while (true) {
+			confirmation = scanner.nextLine().trim().toUpperCase();
+			 if (confirmation.equals("Y")) {
+			        System.out.println("Traveling to " + solarSystem.get(planetChoice).getName() + "...");
+			        ship.setFuelLevel(ship.getFuelLevel() - cost);
+			        locationIndex = planetChoice; // Update location index
+			        break;
+			    } else if (confirmation.equals("N")) {
+			        System.out.println("Canceling space jump...");
+			        break;
+			    } else {
+			        System.out.println("Invalid input. Please enter 'Y' to proceed or 'N' to cancel.");
+			    }
+		}
+		return locationIndex;	
+	}
+}
+
+
+---------------- GAME OUTPUT --------------------
+
+Let your space adventure begin! All abourd the SS Latrexa! 
+
+
+CURRENT LOCATION: Neptune: A storm-ridden gas giant with an endless sea of swirling green and violet clouds. The planet's gravity is so intense that its core is rumored to be a crystalline network of compressed elements, sought after for advanced technology. Lightning arcs across the skies, and floating mining stations cling perilously to its atmosphere.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 1000
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+1
+Where would you like to travel?: 
+	0 - Neptune 
+	1 - Saturn 
+	2 - Venus 
+	3 - Mars 
+	4 - Pluto 
+
+2
+It costs 20fuel to jump to this planet, proceed?	(Y / N)
+y
+Traveling to Venus...
+
+CURRENT LOCATION: Venus: A frozen tundra planet covered in glaciers and jagged ice peaks. Aurora-like light displays dance across the sky, generated by the planet's magnetized core. Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers come in search of the mysterious relics.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 980
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+2
+Spock: "Let us see 'ere if we gots ourselves any tray-sure..."
+Spock: "ARRRRGH THERE BE NOTHIN 'ERE BUT JACK SQUAT!"
+
+CURRENT LOCATION: Venus: A frozen tundra planet covered in glaciers and jagged ice peaks. Aurora-like light displays dance across the sky, generated by the planet's magnetized core. Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers come in search of the mysterious relics.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 980
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+2
+Spock: "Let us see 'ere if we gots ourselves any tray-sure..."
+Spock: "ARRRRGH THERE BE NOTHIN 'ERE BUT JACK SQUAT!"
+
+CURRENT LOCATION: Venus: A frozen tundra planet covered in glaciers and jagged ice peaks. Aurora-like light displays dance across the sky, generated by the planet's magnetized core. Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers come in search of the mysterious relics.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 980
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+2
+Spock: "Let us see 'ere if we gots ourselves any tray-sure..."
+Spock: "ARRRRGH THERE BE NOTHIN 'ERE BUT JACK SQUAT!"
+
+CURRENT LOCATION: Venus: A frozen tundra planet covered in glaciers and jagged ice peaks. Aurora-like light displays dance across the sky, generated by the planet's magnetized core. Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers come in search of the mysterious relics.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 980
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+2
+Spock: "Let us see 'ere if we gots ourselves any tray-sure..."
+Spock: "ARRRRGH THERE BE NOTHIN 'ERE BUT JACK SQUAT!"
+
+CURRENT LOCATION: Venus: A frozen tundra planet covered in glaciers and jagged ice peaks. Aurora-like light displays dance across the sky, generated by the planet's magnetized core. Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers come in search of the mysterious relics.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 980
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+2
+Spock: "Let us see 'ere if we gots ourselves any tray-sure..."
+Spock: "ARRRRGH THERE BE NOTHIN 'ERE BUT JACK SQUAT!"
+
+CURRENT LOCATION: Venus: A frozen tundra planet covered in glaciers and jagged ice peaks. Aurora-like light displays dance across the sky, generated by the planet's magnetized core. Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers come in search of the mysterious relics.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 980
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+2
+Spock: "Let us see 'ere if we gots ourselves any tray-sure..."
+Spock: "ARRRRGH THERE BE NOTHIN 'ERE BUT JACK SQUAT!"
+
+CURRENT LOCATION: Venus: A frozen tundra planet covered in glaciers and jagged ice peaks. Aurora-like light displays dance across the sky, generated by the planet's magnetized core. Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers come in search of the mysterious relics.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 980
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+2
+Spock: "Let us see 'ere if we gots ourselves any tray-sure..."
+Spock: "WE FOUND SOMETHIN' LADS!"
+Cargo Contents:
+1. Alien Artifact
+2. Iron Ore
+3. Magnesium
+
+
+CURRENT LOCATION: Venus: A frozen tundra planet covered in glaciers and jagged ice peaks. Aurora-like light displays dance across the sky, generated by the planet's magnetized core. Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers come in search of the mysterious relics.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 980
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+3
+Travis didn't find any aliens... but keep an eye out for anything suspicious.
+
+CURRENT LOCATION: Venus: A frozen tundra planet covered in glaciers and jagged ice peaks. Aurora-like light displays dance across the sky, generated by the planet's magnetized core. Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers come in search of the mysterious relics.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 980
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+3
+Travis didn't find any aliens... but keep an eye out for anything suspicious.
+
+CURRENT LOCATION: Venus: A frozen tundra planet covered in glaciers and jagged ice peaks. Aurora-like light displays dance across the sky, generated by the planet's magnetized core. Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers come in search of the mysterious relics.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 980
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+3
+Travis: "I found an alien!!"
+Travis deals 56 damage to the Demigorgan
+Demigorgan is dead! phew...
+Taylor: "That was a Demigorgan, A sleek, metallic-skinned being with elongated limbs and glowing, crystalline eyes that shift color with their emotions. Their heads are adorned with bioluminescent tendrils that pulse faintly like a living neural network."
+
+CURRENT LOCATION: Venus: A frozen tundra planet covered in glaciers and jagged ice peaks. Aurora-like light displays dance across the sky, generated by the planet's magnetized core. Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers come in search of the mysterious relics.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 980
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+34
+Invalid selection. Please choose a valid option.
+
+CURRENT LOCATION: Venus: A frozen tundra planet covered in glaciers and jagged ice peaks. Aurora-like light displays dance across the sky, generated by the planet's magnetized core. Ancient ruins buried deep within the ice suggest a long-lost civilization, and explorers come in search of the mysterious relics.
+
+Spock's Health: 100
+Travis's Health: 100
+Adam's Health: 100
+Taylor's Health: 100
+
+SS Latrexa's Fuel Level: 980
+SS Latrexa's Hull Integrity: 100
+
+What would you like to do?: 
+	1 - Travel to another Planet 
+	2 - Scan for resources on this planet 
+	3 - Scan for lifeforms on this planet 
+	4 - Quit 
+
+4
+Exiting the game...
+GAME OVER
+
